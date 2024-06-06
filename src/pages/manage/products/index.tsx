@@ -60,7 +60,7 @@ const columns: PageTableColumn[] = [
   {
     key: 'action',
     enableHiding: false,
-    header: () => <div className="text-right">Action</div>,
+    header: () => <div className="text-right">action</div>,
     cell: (ctx) => {
       return generateActionMenu(ctx, [{ title: 'Edit', click: 'onEdit' }, { title: 'Delete', click: 'onDelete' }])
     }

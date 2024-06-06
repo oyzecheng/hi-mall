@@ -19,7 +19,7 @@ export interface PageFormItem {
   control?: (field: ControllerRenderProps) => React.ReactNode
 }
 
-interface PageFormProps {
+export interface PageFormProps {
   form: ReturnType<typeof useForm<any>>
   configList: PageFormItem[]
   onSubmit: SubmitHandler<any>
@@ -35,7 +35,7 @@ export default function PageForm({ form, onSubmit, configList, onCancel }: PageF
   return (
     <Form {...form}>
       <ScrollArea className="h-[calc(100vh-75px)] pr-4">
-        <form onSubmit={ form.handleSubmit(onSubmit) } className="space-y-4 mt-4 mx-1">
+        <form onSubmit={ form.handleSubmit(onSubmit) } className="space-y-4 mt-4 mx-[1px]">
           {
             configList.map(config => (
               <FormField
@@ -57,8 +57,8 @@ export default function PageForm({ form, onSubmit, configList, onCancel }: PageF
               />
             ))
           }
-          <Button type="submit">Submit</Button>
-          <Button variant="secondary" className="ml-4" onClick={handleCancel}>Cancel</Button>
+          <Button type="submit">确定</Button>
+          <Button variant="secondary" className="ml-4" onClick={handleCancel}>取消</Button>
         </form>
       </ScrollArea>
     </Form>

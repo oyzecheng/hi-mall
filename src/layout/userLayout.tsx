@@ -10,6 +10,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
   const manageRouteList = [
     { path: '/manage/users', name: 'User Manage' },
+    { path: '/manage/category', name: '分类管理' },
     { path: '/manage/products', name: 'Product Manage' }
   ]
 

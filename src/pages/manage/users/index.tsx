@@ -109,6 +109,7 @@ const columns: PageTableColumn<Payment>[] = [
   {
     key: 'actions',
     enableHiding: false,
+    header: () => <div className="text-right">action</div>,
     cell: ({ row }) => {
       const payment = row.original
 
