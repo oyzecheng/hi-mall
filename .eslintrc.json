@@ -1,5 +1,5 @@
 {
-  "extends": "next/core-web-vitals",
+  "extends": ["next/core-web-vitals", "prettier"],
   "rules": {
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     "@typescript-eslint/consistent-type-definitions": "off",

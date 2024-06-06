@@ -1,6 +1,15 @@
 import UserLayout from '@/src/layout/userLayout'
-import { generateColumn, generateColumnFilter, PageTableColumn } from '@/src/components/PageTable'
-import { ColumnFiltersState, getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
+import {
+  generateColumn,
+  generateColumnFilter,
+  PageTableColumn
+} from '@/src/components/PageTable'
+import {
+  ColumnFiltersState,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable
+} from '@tanstack/react-table'
 import { useState } from 'react'
 import PageTable from '@/src/components/PageTable'
 import PageFormSheet from '@/src/components/PageFormSheet'
@@ -13,7 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 const columns: PageTableColumn[] = [
   { key: 'title', header: '分类名称' },
-  { key: 'createdAt', header: '创建时间'},
+  { key: 'createdAt', header: '创建时间' },
   { key: 'actions', header: () => <div className="text-right">操作</div> }
 ]
 
@@ -28,10 +37,8 @@ const formSchema = z.object({
 const tableData: any[] = []
 
 export default function CategoryManage() {
-  const { open, sheetType, onOpenChange , onOpenByOne} = usePageFormSheet()
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  )
+  const { open, sheetType, onOpenChange, onOpenByOne } = usePageFormSheet()
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const table = useReactTable({
     data: tableData,
     columns: generateColumn(columns),
@@ -67,7 +74,7 @@ export default function CategoryManage() {
             onSubmit={onSubmit}
             onButtonClick={onOpenByOne}
           />
-          { generateColumnFilter(table) }
+          {generateColumnFilter(table)}
         </div>
       </div>
       <PageTable columns={columns} table={table} />
