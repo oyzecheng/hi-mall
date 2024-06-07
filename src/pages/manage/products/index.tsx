@@ -6,24 +6,25 @@ import PageTable, {
   generateColumnFilter,
   PageTableColumn
 } from '@/src/components/PageTable'
-import PageForm, { PageFormItem } from '@/src/components/PageForm'
+import { PageFormItem } from '@/src/components/PageForm'
 import {
-  ColumnFiltersState, getPaginationRowModel,
+  ColumnFiltersState,
+  getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { getCoreRowModel } from '@tanstack/react-table'
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import PageFormSheet from '@/src/components/PageFormSheet'
+import usePageFormSheet from '@/src/hooks/usePageFormSheet'
+import usePageForm from '@/src/hooks/usePageForm'
 
 const columns: PageTableColumn[] = [
   {
     key: 'poster',
+    header: '产品图',
     cell: () => (
       <Image
         src="https://static.oouzc.com/avatar/avatar_1.png"
@@ -34,59 +35,62 @@ const columns: PageTableColumn[] = [
     )
   },
   {
-    key: 'title'
+    key: 'title',
+    header: '名称'
   },
   {
-    key: 'price'
+    key: 'price',
+    header: '价格'
   },
   {
-    key: 'sales'
+    key: 'sales',
+    header: '销售量'
   },
   {
-    key: 'status'
+    key: 'status',
+    header: '状态'
   },
   {
-    key: 'stock'
+    key: 'stock',
+    header: '库存'
   },
   {
-    key: 'category'
+    key: 'category',
+    header: '分类'
   },
   {
-    key: 'recommend'
+    key: 'recommend',
+    header: '推荐'
   },
   {
-    key: 'createdAt'
+    key: 'createdAt',
+    header: '创建时间'
   },
   {
     key: 'action',
     enableHiding: false,
-    header: () => <div className="text-right">action</div>,
+    header: () => <div className="text-right">操作</div>,
     cell: (ctx) => {
-      return generateActionMenu(ctx, [{ title: 'Edit', click: 'onEdit' }, { title: 'Delete', click: 'onDelete' }])
+      return generateActionMenu(ctx, [
+        { title: '编辑', click: 'onEdit' },
+        { title: '删除', click: 'onDelete' }
+      ])
     }
   }
 ]
 
 const formSchema = z.object({
-  image: z
-    .string()
-    .max(1000)
-    .url('Invalid image url'),
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(255, 'Title is too long'),
+  image: z.string().max(1000).url('Invalid image url'),
+  title: z.string().min(1, 'Title is required').max(255, 'Title is too long'),
   description: z
     .string()
     .min(1, 'Description is required')
     .max(1000, 'Description is too long'),
-  price: z
-    .coerce
+  price: z.coerce
     .number()
     .min(0, 'Price must be greater than 0')
     .max(9999, 'Price must be less than 9999'),
-  stork: z
-    .coerce
+  stork: z.coerce
     .number()
     .min(0, 'Stock must be greater than 0')
     .max(9999, 'Stock must be less than 9999'),
@@ -98,51 +102,52 @@ const formSchema = z.object({
 
 const formConfigList: PageFormItem[] = [
   {
-    name: 'image',
-    label: 'Poster',
-    control: (field) => <Textarea {...field} />
-  },
-  {
     name: 'title',
-    label: 'Title',
+    label: '产品名称',
     control: (field) => <Input {...field} />
   },
   {
     name: 'description',
-    label: 'description',
+    label: '描述',
     control: (field) => <Textarea {...field} />
   },
   {
     name: 'price',
-    label: 'price',
+    label: '价格',
     control: (field) => <Input type="number" min={0} max={9999} {...field} />
   },
   {
     name: 'stork',
-    label: 'stork',
+    label: '库存',
     control: (field) => <Input type="number" min={0} max={9999} {...field} />
   },
   {
     name: 'category',
-    label: 'category',
+    label: '分类',
     control: (field) => <Input {...field} />
+  },
+  {
+    name: 'image',
+    label: '海报图',
+    control: (field) => <Textarea {...field} />
   }
 ]
 
-const data = [{ id: 1, title: 'Product 1', price: 12 }, { id: 2, title: 'Product 2' }]
+const data = [
+  { id: 1, title: 'Product 1', price: 12 },
+  { id: 2, title: 'Product 2' }
+]
 
 export default function ProductManage() {
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [sheetType, setSheetType] = useState<1 | 2>(1)
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  )
+  const { open, onOpenChange, onOpenByOne, onOpenByTwo, sheetType } =
+    usePageFormSheet()
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
     data,
     columns: generateColumn(columns, {
       onEdit: ({ row }) => {
-        handleOpenSheet(2)
+        onOpenByTwo()
         form.reset(row.original)
       },
       onDelete: () => {}
@@ -155,25 +160,10 @@ export default function ProductManage() {
     }
   })
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      price: 0,
-      stork: 0,
-      category: ''
-    }
-  })
+  const form = usePageForm(formSchema)
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log(data)
-  }
-
-  const handleOpenSheet = (type:  1 | 2) => {
-    form.reset()
-    setSheetType(type)
-    setSheetOpen(true)
   }
 
   return (
@@ -181,25 +171,16 @@ export default function ProductManage() {
       <div>
         <div className="pb-4 flex">
           <div className="ml-auto space-x-4">
-            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-              <SheetTrigger asChild>
-                <Button onClick={() => handleOpenSheet(1)}>Add</Button>
-              </SheetTrigger>
-              <SheetContent className="w-[500px] sm:max-w-[500px]">
-                <SheetHeader>
-                  <SheetTitle>{ sheetType === 1 ? 'Add Product' : 'Edit Product' }</SheetTitle>
-                </SheetHeader>
-                <div>
-                  <PageForm
-                    onSubmit={onSubmit}
-                    form={form}
-                    configList={formConfigList}
-                    onCancel={() => setSheetOpen(false)}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-            { generateColumnFilter(table) }
+            <PageFormSheet
+              open={open}
+              onOpenChange={onOpenChange}
+              form={form}
+              onSubmit={onSubmit}
+              configList={formConfigList}
+              onButtonClick={onOpenByOne}
+              sheetType={sheetType}
+            />
+            {generateColumnFilter(table)}
           </div>
         </div>
         <PageTable columns={columns} table={table}></PageTable>

@@ -1,7 +1,20 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { CellContext, ColumnDef, flexRender, useReactTable } from '@tanstack/react-table'
 import {
-  DropdownMenu, DropdownMenuCheckboxItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import {
+  CellContext,
+  ColumnDef,
+  flexRender,
+  useReactTable
+} from '@tanstack/react-table'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -19,26 +32,38 @@ export type PageTableColumn<T = any> = {
 export interface PageTableActionMenu {
   title: string
   click?: string | (() => void)
+  className?: string
 }
 const actionKeys: string[] = []
 
 type Actions = {
-  [Key in typeof actionKeys[number]]: (ctx: CellContext<any, any>) => void;
+  [Key in (typeof actionKeys)[number]]: (ctx: CellContext<any, any>) => void
 }
 
 let actions: Actions = {}
 
-export function generateColumn<T>(columns: PageTableColumn<T>[], actionList?: typeof actions): ColumnDef<T>[] {
+export function generateColumn<T>(
+  columns: PageTableColumn<T>[],
+  actionList?: typeof actions
+): ColumnDef<T>[] {
   actions = actionList || {}
-  return columns.map(item => ({
+  return columns.map((item) => ({
     ...item,
     accessorKey: item.key,
     header: item.header || item.key,
-    cell: item.cell || function ({ row}) { return row.getValue(item.key) }
+    cell:
+      item.cell ||
+      function ({ row }) {
+        return row.getValue(item.key)
+      }
   }))
 }
 
-export function generateActionMenu(ctx: CellContext<any, any>, menus: PageTableActionMenu[], label = 'Actions') {
+export function generateActionMenu(
+  ctx: CellContext<any, any>,
+  menus: PageTableActionMenu[],
+  label = '操作'
+) {
   return (
     <div className="text-right">
       <DropdownMenu>
@@ -49,22 +74,25 @@ export function generateActionMenu(ctx: CellContext<any, any>, menus: PageTableA
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>{ label }</DropdownMenuLabel>
-          {
-            menus.map(menu => {
-              if (typeof menu.click === 'string') {
-                actionKeys.push(menu.click)
-              }
-              return (
-                <DropdownMenuItem
-                  key={menu.title}
-                  onClick={() => typeof menu.click === 'string' ? actions[menu.click](ctx) : menu.click?.() }
-                >
-                  { menu.title}
-                </DropdownMenuItem>
-              )
-            })
-          }
+          <DropdownMenuLabel>{label}</DropdownMenuLabel>
+          {menus.map((menu) => {
+            if (typeof menu.click === 'string') {
+              actionKeys.push(menu.click)
+            }
+            return (
+              <DropdownMenuItem
+                key={menu.title}
+                className={menu.className}
+                onClick={() =>
+                  typeof menu.click === 'string'
+                    ? actions[menu.click](ctx)
+                    : menu.click?.()
+                }
+              >
+                {menu.title}
+              </DropdownMenuItem>
+            )
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
@@ -76,26 +104,26 @@ export function generateColumnFilter(table: PageTableProps['table']) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="ml-auto">
-          Columns <ChevronDownIcon className="ml-2 h-4 w-4"/>
+          列 <ChevronDownIcon className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        { table
+        {table
           .getAllColumns()
           .filter((column) => column.getCanHide())
           .map((column) => {
+            const header = column.columnDef.header
             return (
               <DropdownMenuCheckboxItem
-                key={ column.id }
+                key={column.id}
                 className="capitalize"
-                checked={ column.getIsVisible() }
-                onCheckedChange={ (value) => column.toggleVisibility(!!value)
-                }
+                checked={column.getIsVisible()}
+                onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                { column.id }
+                {typeof header === 'function' ? header({} as any) : header}
               </DropdownMenuCheckboxItem>
             )
-          }) }
+          })}
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -112,50 +140,50 @@ export default function PageTable({ columns, table }: PageTableProps) {
       <div className="rounded-md border border-gray-200">
         <Table>
           <TableHeader>
-            { table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={ headerGroup.id }>
-                { headerGroup.headers.map((header) => {
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={ header.id } className="text-gray-800">
-                      { header.isPlaceholder
+                    <TableHead key={header.id} className="text-gray-800">
+                      {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        ) }
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                     </TableHead>
                   )
-                }) }
+                })}
               </TableRow>
-            )) }
+            ))}
           </TableHeader>
           <TableBody className="text-gray-700">
-            { table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={ row.id }
-                  data-state={ row.getIsSelected() && 'selected' }
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
-                  { row.getVisibleCells().map((cell) => (
-                    <TableCell key={ cell.id }>
-                      { flexRender(
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
-                      ) }
+                      )}
                     </TableCell>
-                  )) }
+                  ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={ columns.length }
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.
                 </TableCell>
               </TableRow>
-            ) }
+            )}
           </TableBody>
         </Table>
       </div>
@@ -164,16 +192,16 @@ export default function PageTable({ columns, table }: PageTableProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={ () => table.previousPage() }
-            disabled={ !table.getCanPreviousPage() }
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={ () => table.nextPage() }
-            disabled={ !table.getCanNextPage() }
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
           >
             Next
           </Button>

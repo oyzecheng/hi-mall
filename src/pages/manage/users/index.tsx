@@ -1,32 +1,12 @@
 import UserLayout from '@/src/layout/userLayout'
-import {
-  CaretSortIcon,
-  ChevronDownIcon,
-  DotsHorizontalIcon
-} from '@radix-ui/react-icons'
-import {
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable
-} from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
-import { useState } from 'react'
 import { Input } from '@/components/ui/input'
-import PageTable, { generateColumn, PageTableColumn } from '@/src/components/PageTable'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import PageTable, {
+  generateActionMenu,
+  generateColumn,
+  generateColumnFilter,
+  PageTableColumn
+} from '@/src/components/PageTable'
+import usePageTable from '@/src/hooks/usePageTable'
 
 const data: Payment[] = [
   {
@@ -70,102 +50,36 @@ export type Payment = {
 
 const columns: PageTableColumn<Payment>[] = [
   {
+    key: 'email',
+    header: '邮箱'
+  },
+  {
     key: 'status',
-    header: 'Status',
+    header: '状态',
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue('status')}</div>
     )
   },
   {
-    key: 'email',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Email
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>
-  },
-  {
-    key: 'amount',
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'))
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(amount)
-
-      return <div className="text-right font-medium">{formatted}</div>
-    }
+    key: 'createdAt',
+    header: '创建时间'
   },
   {
     key: 'actions',
     enableHiding: false,
-    header: () => <div className="text-right">action</div>,
-    cell: ({ row }) => {
-      const payment = row.original
-
-      return (
-        <div className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(payment.id)}
-              >
-                Copy payment ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View customer</DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )
-    }
+    header: () => <div className="text-right">操作</div>,
+    cell: (ctx) =>
+      generateActionMenu(ctx, [
+        { title: '启用', click: 'onEnable' },
+        { title: '禁用', click: 'onDisable' }
+      ])
   }
 ]
 
 export default function UserManage() {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  )
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
-
-  const table = useReactTable({
+  const table = usePageTable({
     data,
-    columns: generateColumn(columns),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection
-    }
+    columns: generateColumn(columns)
   })
 
   return (
@@ -174,40 +88,15 @@ export default function UserManage() {
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter emails..."
-            value={ (table.getColumn('email')?.getFilterValue() as string) ?? '' }
-            onChange={ (event) =>
+            value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+            onChange={(event) =>
               table.getColumn('email')?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDownIcon className="ml-2 h-4 w-4"/>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              { table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={ column.id }
-                      className="capitalize"
-                      checked={ column.getIsVisible() }
-                      onCheckedChange={ (value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      { column.id }
-                    </DropdownMenuCheckboxItem>
-                  )
-                }) }
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {generateColumnFilter(table)}
         </div>
-        <PageTable table={ table } columns={columns} />
+        <PageTable table={table} columns={columns} />
       </div>
     </UserLayout>
   )
