@@ -2,6 +2,7 @@ import Layout from '@/src/layout/layout'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { Icon } from '@iconify/react'
+import ProductQuantityControl from '@/src/components/ProductQuantityControl'
 
 export default function Product() {
   const [count, setCount] = useState(1)
@@ -30,21 +31,7 @@ export default function Product() {
           </div>
           <div className="border-b border-gray-100 border-solid py-5">
             <div className="pb-6 inline-block">
-              <div className="flex items-center bg-gray-100 rounded-full p-1">
-                <div
-                  className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                  onClick={() => setCount(count - 1 <= 0 ? 1 : count - 1)}
-                >
-                  <Icon icon="mdi:minus" />
-                </div>
-                <span className="w-16 text-center">{count}</span>
-                <div
-                  className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                  onClick={() => setCount(count + 1)}
-                >
-                  <Icon icon="mdi:plus" />
-                </div>
-              </div>
+              <ProductQuantityControl value={count} onChange={setCount} />
             </div>
             <div className="space-x-6">
               <Button className="rounded-full py-6 px-12 text-base">

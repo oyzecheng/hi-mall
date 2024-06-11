@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Icon } from '@iconify/react'
 import Link from 'next/link'
+import ShoppingCar from '@/src/components/ShoppingCar'
 import { useSession } from 'next-auth/react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
@@ -20,13 +21,7 @@ export default function PageHeader() {
           </Link>
           <div className="grid grid-flow-col gap-4">
             <Input className="rounded-full" placeholder="Search..." />
-            <Button
-              size="icon"
-              variant="outline"
-              className="rounded-full text-lg"
-            >
-              <Icon icon="streamline:shopping-cart-basket-3-shopping-basket" />
-            </Button>
+            <ShoppingCar></ShoppingCar>
             {user ? (
               <Link href="/user">
                 <Avatar className="w-9 h-9">
