@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      String  @id @default(uuid())
+  name    String  @db.VarChar(255)
+  avatar  String?
+  email   String  @unique
+  address String?
+
+  password String
+  role     RoleEnum?      @default(user)
+  state    UserStateEnum? @default(enable)
+
+  order Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map(name: "users")
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @db.VarChar(10)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
+
+  @@map(name: "categorys")
+}
+
+model Product {
+  id         String            @id @default(uuid())
+  cover      String[]
+  name       String            @db.VarChar(255)
+  price      Int
+  sale       Int
+  state      ProductStateEnum? @default(ready)
+  stock      Int
+  category   Category          @relation(fields: [categoryId], references: [id])
+  recommend  Boolean           @default(false)
+  categoryId String
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  OrderItem OrderItem[]
+
+  @@map(name: "products")
+}
+
+model Order {
+  id      String @id @default(uuid())
+  orderNo String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+
+  orderItem OrderItem[]
+  price     Int
+
+  state         OrderStateEnum?     @default(checkout)
+  paymentState  OrderPaymentState?  @default(checkout)
+  shipmentState OrderShipmentState? @default(checkout)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  payAt       DateTime
+  fulfilledAt DateTime
+
+  @@map(name: "orders")
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String
+
+  product    Product @relation(fields: [productId], references: [id])
+  productId  String
+  quantity   Int
+  unitPrice  Int
+  totalPrice Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map(name: "order_items")
+}
+
+enum RoleEnum {
+  user
+  admin
+}
+
+enum UserStateEnum {
+  enable
+  unable
+}
+
+enum ProductStateEnum {
+  ready
+  sell
+  empty
+}
+
+enum OrderStateEnum {
+  checkout
+  new
+  cancelled
+  fulfilled
+}
+
+enum OrderPaymentState {
+  checkout
+  awaiting
+  cancelled
+  pay
+  refunded
+}
+
+enum OrderShipmentState {
+  checkout
+  ready
+  cancelled
+  shipped
+}

@@ -7,11 +7,14 @@ export const authOptions: NextAuthOptions = {
       name: 'Credentials',
       credentials: {
         username: { label: 'Username', type: 'text' },
-        password: {  label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials, req) {
         console.log('---', credentials)
-        if (credentials?.username === 'admin' && credentials?.password === 'admin') {
+        if (
+          credentials?.username === 'admin' &&
+          credentials?.password === 'admin'
+        ) {
           return { id: '1', name: 'Admin' }
         }
         return null
@@ -30,14 +33,16 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
       }
-      console.log('jwt', user, token)
+      console.log('jwt user', user)
+      console.log('jwt token', token)
       return token
     },
     async session({ session, token }) {
       // if (token) {
       //   session.user.id = token.id
       // }
-      console.log('===', session, token)
+      console.log('=== session', session)
+      console.log('=== session', token)
       return session
     }
   },

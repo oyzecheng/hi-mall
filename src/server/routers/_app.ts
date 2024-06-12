@@ -1,19 +1,13 @@
-import { z } from 'zod'
-import { procedure, router } from '../trpc'
+import { procedure, router, t } from '../trpc'
+import categoryRouter from '@/src/server/routers/category.routes'
 
-export const appRouter = router({
-  hello: procedure
-    .input(
-      z.object({
-        text: z.string()
-      }),
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`
-      }
-    })
+const publicRouter = router({
+  hello: procedure.query(() => {
+    return 'hello'
+  })
 })
 
+export const appRouter = t.mergeRouters(publicRouter, categoryRouter)
+
 // export type definition of API
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter
