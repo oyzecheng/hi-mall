@@ -13,9 +13,11 @@ import { Input } from '@/components/ui/input'
 import z from 'zod'
 import usePageTable from '@/src/hooks/usePageTable'
 import usePageForm from '@/src/hooks/usePageForm'
+import { trpc } from '@/src/utils/trpc'
+import { useState } from 'react'
 
 const columns: PageTableColumn[] = [
-  { key: 'title', header: '分类名称' },
+  { key: 'name', header: '分类名称' },
   { key: 'createdAt', header: '创建时间' },
   {
     key: 'actions',
@@ -44,28 +46,65 @@ const formSchema = z.object({
 const tableData: any[] = [{ id: 1, title: '水果', createdAt: '2022-01-01' }]
 
 export default function CategoryManage() {
-  const { open, sheetType, onOpenChange, onOpenByOne, onOpenByTwo } =
+  const { open, sheetType, onOpenChange, onOpenByOne, onOpenByTwo, record } =
     usePageFormSheet()
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const { data, refetch } = trpc.getCategoryList.useQuery(pagination)
+  const { mutate: deleteCategory } = trpc.deleteCategory.useMutation({
+    onSuccess: () => refetch()
+  })
+  const { mutate: updateCategory } = trpc.updateCategory.useMutation({
+    onSuccess: () => refetch()
+  })
+  const { mutate: getCategory } = trpc.getCategory.useMutation({
+    onSuccess: (data) => form.reset({ title: data?.data.name })
+  })
   const table = usePageTable({
-    data: tableData,
+    data: data?.data.list || [],
+    rowCount: data?.data.count || 0,
+    manualPagination: true,
     columns: generateColumn(columns, {
       onEdit: ({ row }) => {
-        onOpenByTwo()
-        form.reset(row.original)
+        onOpenByTwo(row.original)
+        getCategory({ id: row.original.id })
       },
-      onDelete: () => {}
-    })
+      onDelete: ({ row }) => {
+        const { id } = row.original
+        deleteCategory({ id })
+      }
+    }),
+    onPaginationChange(updater) {
+      setPagination((old) => {
+        const newPagination =
+          updater instanceof Function ? updater(old) : updater
+        refetch()
+        return newPagination
+      })
+    },
+    state: {
+      pagination
+    }
+  })
+  const mutation = trpc.createCategory.useMutation({
+    onSuccess(data) {
+      refetch()
+    }
   })
 
-  const form = usePageForm(formSchema)
+  const { form, formReset } = usePageForm(formSchema)
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data)
+    if (sheetType === 1) {
+      mutation.mutate({ name: data.title })
+    } else if (sheetType === 2) {
+      updateCategory({ id: record.id, name: data.title })
+    }
+    onOpenChange(false)
   }
 
-  const handleCloseSheet = () => {
-    onOpenChange(false)
-    form.reset()
+  const handleConfirmClick = () => {
+    formReset()
+    onOpenByOne()
   }
 
   return (
@@ -79,8 +118,7 @@ export default function CategoryManage() {
             configList={formConfigList}
             form={form}
             onSubmit={onSubmit}
-            onButtonClick={onOpenByOne}
-            onCancel={handleCloseSheet}
+            onButtonClick={handleConfirmClick}
           />
           {generateColumnFilter(table)}
         </div>

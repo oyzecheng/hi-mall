@@ -9,8 +9,14 @@ export default function usePageForm<T extends z.AnyZodObject>(formSchema: T) {
       return [key, '']
     })
   ) as any
-  return useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues
   })
+  return {
+    form,
+    formReset(values?: any) {
+      form.reset(values || defaultValues)
+    }
+  }
 }

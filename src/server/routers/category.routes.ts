@@ -24,7 +24,7 @@ const categoryRouter = router({
     .mutation(({ input }) => getCategoryHandler(input)),
   getCategoryList: procedure
     .input(pageQuery)
-    .mutation(({ input }) => getCategoryListHandler(input)),
+    .query(({ input }) => getCategoryListHandler(input)),
   deleteCategory: procedure
     .input(params)
     .mutation(({ input }) => deleteCategoryHandler(input))

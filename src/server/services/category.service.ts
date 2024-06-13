@@ -9,10 +9,13 @@ export const findCategoryById = (id: string) => {
   return prisma.category.findFirst({ where: { id } })
 }
 
-export const findCategoryList = (page: number, pageSize = 10) => {
+export const findCategoryList = (pageIndex = 0, pageSize = 10) => {
   return prisma.category.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize
+    skip: pageIndex * pageSize,
+    take: pageSize,
+    orderBy: {
+      createdAt: 'desc'
+    }
   })
 }
 

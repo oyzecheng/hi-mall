@@ -7,7 +7,7 @@ export const params = object({
 })
 
 export const pageQuery = object({
-  page: number().default(1),
+  pageIndex: number().default(0),
   pageSize: number().default(10)
 })
 

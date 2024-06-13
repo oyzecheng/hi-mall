@@ -42,12 +42,14 @@ export const getCategoryHandler = async (paramsInput: ParamsInput) => {
   }
 }
 
-export const getCategoryListHandler = async (queryInput: PageQueryInput) => {
+export const getCategoryListHandler = async (queryInput?: PageQueryInput) => {
   try {
-    const list = await findCategoryList(queryInput.page, queryInput.pageSize)
+    const { pageIndex, pageSize } = queryInput || {}
+    console.log('queryInput', queryInput)
+    const list = await findCategoryList(pageIndex, pageSize)
     return handleSuccess({
-      page: queryInput,
-      pageSize: queryInput.pageSize,
+      pageIndex,
+      pageSize: pageSize,
       list,
       count: await getCategoryCount()
     })
