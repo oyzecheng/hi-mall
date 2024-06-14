@@ -44,16 +44,17 @@ model Category {
 }
 
 model Product {
-  id         String            @id @default(uuid())
-  cover      String[]
-  name       String            @db.VarChar(255)
-  price      Int
-  sale       Int
-  state      ProductStateEnum? @default(ready)
-  stock      Int
-  category   Category          @relation(fields: [categoryId], references: [id])
-  recommend  Boolean           @default(false)
-  categoryId String
+  id          String            @id @default(uuid())
+  cover       String[]
+  name        String            @db.VarChar(255)
+  description String?
+  price       Int
+  sale        Int               @default(0)
+  state       ProductStateEnum? @default(ready)
+  stock       Int
+  category    Category          @relation(fields: [categoryId], references: [id])
+  recommend   Boolean           @default(false)
+  categoryId  String
 
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt

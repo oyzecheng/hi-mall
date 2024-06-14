@@ -20,6 +20,7 @@ import z from 'zod'
 import PageFormSheet from '@/src/components/PageFormSheet'
 import usePageFormSheet from '@/src/hooks/usePageFormSheet'
 import usePageForm from '@/src/hooks/usePageForm'
+import { createProductSchema } from '@/src/server/schema/product.schema'
 
 const columns: PageTableColumn[] = [
   {
@@ -35,7 +36,7 @@ const columns: PageTableColumn[] = [
     )
   },
   {
-    key: 'title',
+    key: 'name',
     header: '名称'
   },
   {
@@ -79,30 +80,9 @@ const columns: PageTableColumn[] = [
   }
 ]
 
-const formSchema = z.object({
-  image: z.string().max(1000).url('Invalid image url'),
-  title: z.string().min(1, 'Title is required').max(255, 'Title is too long'),
-  description: z
-    .string()
-    .min(1, 'Description is required')
-    .max(1000, 'Description is too long'),
-  price: z.coerce
-    .number()
-    .min(0, 'Price must be greater than 0')
-    .max(9999, 'Price must be less than 9999'),
-  stork: z.coerce
-    .number()
-    .min(0, 'Stock must be greater than 0')
-    .max(9999, 'Stock must be less than 9999'),
-  category: z
-    .string()
-    .min(1, 'Category is required')
-    .max(50, 'Category is too long')
-})
-
 const formConfigList: PageFormItem[] = [
   {
-    name: 'title',
+    name: 'name',
     label: '产品名称',
     control: (field) => <Input {...field} />
   },
@@ -127,7 +107,12 @@ const formConfigList: PageFormItem[] = [
     control: (field) => <Input {...field} />
   },
   {
-    name: 'image',
+    name: 'recommend',
+    label: '推荐',
+    control: (field) => <Input {...field} />
+  },
+  {
+    name: 'cover',
     label: '海报图',
     control: (field) => <Textarea {...field} />
   }
@@ -148,7 +133,6 @@ export default function ProductManage() {
     columns: generateColumn(columns, {
       onEdit: ({ row }) => {
         onOpenByTwo()
-        form.reset(row.original)
       },
       onDelete: () => {}
     }),
@@ -160,10 +144,15 @@ export default function ProductManage() {
     }
   })
 
-  const form = usePageForm(formSchema)
+  const { form, formReset } = usePageForm(createProductSchema)
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: z.infer<typeof createProductSchema>) => {
     console.log(data)
+  }
+
+  const handleOpenSheet = () => {
+    formReset()
+    onOpenByOne()
   }
 
   return (
@@ -177,7 +166,7 @@ export default function ProductManage() {
               form={form}
               onSubmit={onSubmit}
               configList={formConfigList}
-              onButtonClick={onOpenByOne}
+              onButtonClick={handleOpenSheet}
               sheetType={sheetType}
             />
             {generateColumnFilter(table)}

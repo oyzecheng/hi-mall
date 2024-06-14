@@ -45,7 +45,6 @@ export const getCategoryHandler = async (paramsInput: ParamsInput) => {
 export const getCategoryListHandler = async (queryInput?: PageQueryInput) => {
   try {
     const { pageIndex, pageSize } = queryInput || {}
-    console.log('queryInput', queryInput)
     const list = await findCategoryList(pageIndex, pageSize)
     return handleSuccess({
       pageIndex,

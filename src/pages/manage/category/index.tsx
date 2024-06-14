@@ -15,10 +15,15 @@ import usePageTable from '@/src/hooks/usePageTable'
 import usePageForm from '@/src/hooks/usePageForm'
 import { trpc } from '@/src/utils/trpc'
 import { useState } from 'react'
+import { formatDateToTimezone } from '@/src/utils/format'
 
 const columns: PageTableColumn[] = [
   { key: 'name', header: '分类名称' },
-  { key: 'createdAt', header: '创建时间' },
+  {
+    key: 'createdAt',
+    header: '创建时间',
+    cell: ({ row }) => formatDateToTimezone(row.original.createdAt)
+  },
   {
     key: 'actions',
     header: () => <div className="text-right">操作</div>,
@@ -42,8 +47,6 @@ const formSchema = z.object({
     .min(2, '分类名称不能少于2个字符')
     .default('')
 })
-
-const tableData: any[] = [{ id: 1, title: '水果', createdAt: '2022-01-01' }]
 
 export default function CategoryManage() {
   const { open, sheetType, onOpenChange, onOpenByOne, onOpenByTwo, record } =
