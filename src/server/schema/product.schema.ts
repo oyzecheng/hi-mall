@@ -10,12 +10,12 @@ const description = z
 const price = z.coerce.number().min(0, '请输入价格')
 const stock = z.coerce.number().min(0, '请输入库存')
 const category = z.string().min(1, '请选择分类')
-const recommend = z.boolean().default(false)
+const recommend = z.coerce.boolean().default(false)
 
 export const createProductSchema = z.object({
-  cover,
+  // cover,
   name,
-  description,
+  // description,
   price,
   stock,
   category,
@@ -24,9 +24,9 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = z.object({
   id: paramsId,
-  cover,
+  // cover,
   name,
-  description,
+  // description,
   price,
   stock,
   category,

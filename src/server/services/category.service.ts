@@ -30,3 +30,9 @@ export const deleteCategoryById = (id: string) => {
 export const getCategoryCount = () => {
   return prisma.category.count()
 }
+
+export const getCategoryAll = () => {
+  return prisma.category.findMany({
+    orderBy: { createdAt: 'desc' }
+  })
+}

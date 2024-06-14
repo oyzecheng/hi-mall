@@ -19,6 +19,9 @@ export const findProductList = (input: PageQueryInput) => {
     take: pageSize,
     orderBy: {
       createdAt: 'desc'
+    },
+    include: {
+      category: { select: { name: true } }
     }
   })
 }
@@ -32,5 +35,5 @@ export const deleteProduct = (id: string) => {
 }
 
 export const getProductCount = () => {
-  return prisma.category.count()
+  return prisma.product.count()
 }

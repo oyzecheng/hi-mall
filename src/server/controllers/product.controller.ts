@@ -24,14 +24,15 @@ const validate = (data: any) => {
 }
 
 export const createProductHandler = async (input: CreateProductInput) => {
-  const { name, category, price, stock } = input
+  const { name, category, price, stock, recommend } = input
   try {
     const product = await createProduct({
       name,
       category: { connect: { id: category } },
       price,
       stock,
-      sale: 0
+      sale: 0,
+      recommend
     })
     return handleSuccess(product)
   } catch (err) {
@@ -54,7 +55,7 @@ export const getProductListHandler = async (
 ) => {
   try {
     const list = await findProductList(queryInput)
-    handleSuccess({
+    return handleSuccess({
       list,
       count: await getProductCount(),
       pageIndex: queryInput.pageIndex,
@@ -67,15 +68,16 @@ export const getProductListHandler = async (
 
 export const updateProductHandler = async (input: UpdateProductInput) => {
   try {
-    const { id, name, price, category, stock } = input
+    const { id, name, price, category, stock, recommend } = input
     const product = await updateProduct(id, {
       name,
       price,
       category: { connect: { id: category } },
-      stock
+      stock,
+      recommend
     })
     validate(product)
-    handleSuccess(product)
+    return handleSuccess(product)
   } catch (err) {
     throw err
   }
@@ -85,7 +87,7 @@ export const deleteProductHandler = async (paramsInput: ParamsInput) => {
   try {
     const product = await deleteProduct(paramsInput.id)
     validate(product)
-    handleSuccess(product)
+    return handleSuccess(product)
   } catch (err) {
     throw err
   }

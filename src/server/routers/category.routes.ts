@@ -8,7 +8,8 @@ import {
   getCategoryHandler,
   getCategoryListHandler,
   updateCategoryHandler,
-  deleteCategoryHandler
+  deleteCategoryHandler,
+  getCategoryAllHandler
 } from '@/src/server/controllers/category.controller'
 import { pageQuery, params } from '@/src/server/schema/common.schema'
 
@@ -27,7 +28,8 @@ const categoryRouter = router({
     .query(({ input }) => getCategoryListHandler(input)),
   deleteCategory: procedure
     .input(params)
-    .mutation(({ input }) => deleteCategoryHandler(input))
+    .mutation(({ input }) => deleteCategoryHandler(input)),
+  getCategoryAll: procedure.query(() => getCategoryAllHandler())
 })
 
 export default categoryRouter

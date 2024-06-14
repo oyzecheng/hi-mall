@@ -5,7 +5,8 @@ import {
   findCategoryById,
   findCategoryList,
   getCategoryCount,
-  updateCategoryById
+  updateCategoryById,
+  getCategoryAll
 } from '@/src/server/services/category.service'
 import { TRPCError } from '@trpc/server'
 import { handleSuccess } from '@/src/server/utils/controller'
@@ -75,6 +76,15 @@ export const deleteCategoryHandler = async (paramsInput: ParamsInput) => {
 
     return handleSuccess(category)
   } catch (err: any) {
+    throw err
+  }
+}
+
+export const getCategoryAllHandler = async () => {
+  try {
+    const list = await getCategoryAll()
+    return handleSuccess(list)
+  } catch (err) {
     throw err
   }
 }
