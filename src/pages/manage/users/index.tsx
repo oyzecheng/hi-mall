@@ -7,39 +7,8 @@ import PageTable, {
   PageTableColumn
 } from '@/src/components/PageTable'
 import usePageTable from '@/src/hooks/usePageTable'
-
-const data: Payment[] = [
-  {
-    id: 'm5gr84i9',
-    amount: 316,
-    status: 'success',
-    email: 'ken99@yahoo.com'
-  },
-  {
-    id: '3u1reuv4',
-    amount: 242,
-    status: 'success',
-    email: 'Abe45@gmail.com'
-  },
-  {
-    id: 'derv1ws0',
-    amount: 837,
-    status: 'processing',
-    email: 'Monserrat44@gmail.com'
-  },
-  {
-    id: '5kma53ae',
-    amount: 874,
-    status: 'success',
-    email: 'Silas22@gmail.com'
-  },
-  {
-    id: 'bhqecj4p',
-    amount: 721,
-    status: 'failed',
-    email: 'carmella@hotmail.com'
-  }
-]
+import { trpc } from '@/src/utils/trpc'
+import { useState } from 'react'
 
 export type Payment = {
   id: string
@@ -50,15 +19,17 @@ export type Payment = {
 
 const columns: PageTableColumn<Payment>[] = [
   {
+    key: 'name',
+    header: '用户名'
+  },
+  {
     key: 'email',
     header: '邮箱'
   },
   {
-    key: 'status',
+    key: 'state',
     header: '状态',
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('status')}</div>
-    )
+    cell: ({ row }) => <div className="capitalize">{row.getValue('state')}</div>
   },
   {
     key: 'createdAt',
@@ -77,9 +48,25 @@ const columns: PageTableColumn<Payment>[] = [
 ]
 
 export default function UserManage() {
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const { data, refetch } = trpc.getUserList.useQuery(pagination)
+
   const table = usePageTable({
-    data,
-    columns: generateColumn(columns)
+    data: data?.data.list || [],
+    rowCount: data?.data.count || 0,
+    manualPagination: true,
+    columns: generateColumn(columns),
+    onPaginationChange(updater) {
+      setPagination((old) => {
+        const newPagination =
+          updater instanceof Function ? updater(old) : updater
+        refetch()
+        return newPagination
+      })
+    },
+    state: {
+      pagination
+    }
   })
 
   return (

@@ -1,6 +1,7 @@
 import { procedure, router, t } from '../trpc'
 import categoryRouter from '@/src/server/routers/category.routes'
 import productRouter from '@/src/server/routers/product.routes'
+import userRouter from '@/src/server/routers/user.routes'
 
 const publicRouter = router({
   hello: procedure.query(() => {
@@ -11,7 +12,8 @@ const publicRouter = router({
 export const appRouter = t.mergeRouters(
   publicRouter,
   categoryRouter,
-  productRouter
+  productRouter,
+  userRouter
 )
 
 // export type definition of API
